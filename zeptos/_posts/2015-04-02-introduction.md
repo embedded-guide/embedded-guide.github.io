@@ -8,6 +8,7 @@ But they say you don't truly understand something unless you can explain it to o
 
 * Initialization
 * Task switching
+* Synchronization
 * Message passing
 * Interrupt handling
 * Peripheral drivers
