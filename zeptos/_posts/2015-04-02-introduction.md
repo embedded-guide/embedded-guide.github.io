@@ -21,4 +21,12 @@ The kind of OS we'll be developing is called an *exokernel*. It's similar to a m
 
 Part 1 of this series will get us a working environment that allows us to compile, link and upload a firmware image. I'll be using an [ST Nucleo F411RE development board](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/LN1847/PF260320) (they're very cheap at $10, and they include an on-board USB programmer), and GCC and GNU Make. Yes, I know there are lots of nicer alternatives to Make, but for the purposes of this series, Makefiles have the advantages of being very explicit. You'll know exactly what's going on at each step and why.
 
+You'll want to have the following documents handy for the next part:
+
+* [User manual for the Nucleo F411RE board](http://www.st.com/st-web-ui/static/active/en/resource/technical/document/user_manual/DM00105823.pdf)
+* [Datasheet for the STM32F411 microcontroller itself](http://www.st.com/web/en/resource/technical/document/datasheet/DM00115249.pdf)
+* [Reference manual for the microcontroller](http://www.st.com/web/en/resource/technical/document/reference_manual/DM00119316.pdf)
+
+The reference manual is going to be our main source of information. It gives in depth details of all the registers that are used to control the microcontroller.
+
 By the way, the OS we're going to be building is called Zeptos, from *zepto*, which is a prefix for the very, very small.
