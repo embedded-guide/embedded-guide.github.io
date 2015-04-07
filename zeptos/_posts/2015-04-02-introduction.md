@@ -30,3 +30,5 @@ You'll want to have the following documents handy for the next part:
 The reference manual is going to be our main source of information. It gives in depth details of all the registers that are used to control the microcontroller.
 
 By the way, the OS we're going to be building is called Zeptos, from *zepto*, which is a prefix for the very, very small.
+
+In [Part 1: Setting Up the Toolchain](/zeptos/toolchain), we'll set up the GCC-based toolchain and create a minimal test firmware to flash the LED on the board.
