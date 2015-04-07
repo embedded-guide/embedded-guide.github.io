@@ -19,9 +19,13 @@ If you're already at all familiar with what an operating system does, you'll kno
 
 The kind of OS we'll be developing is called an *exokernel*. It's similar to a microkernel in that it contains only core functionality, not device drivers. Where it differs, though, is that instead of drivers being implemented as services, they are libraries linked to the running application. This approach works well here, because a microcontroller is usually dedicated to only one application, and the less featured memory controller means we'll only be using minimal memory protection, so libraries linked to tasks will be able to directly access hardware.
 
-Part 1 of this series will get us a working environment that allows us to compile, link and upload a firmware image. I'll be using an [ST Nucleo F411RE development board](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/LN1847/PF260320) (they're very cheap at $10, and they include an on-board USB programmer), and GCC and GNU Make. Yes, I know there are lots of nicer alternatives to Make, but for the purposes of this series, Makefiles have the advantages of being very explicit. You'll know exactly what's going on at each step and why.
+[Part 1](/zeptos/nucleo-board) introduces the hardware I'll be using, which is an [ST Nucleo F411RE](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/LN1847/PF260320) development board (they're very cheap at $10, and they include an on-board USB programmer).
 
-You'll want to have the following documents handy for the next part:
+[Part 2](/zeptos/first-code) will go through the code required to get the on-board LED blinking.
+
+[Part 3](/zeptos/toolchain) will get the GCC and Make toolchain working. Yes, I know there are lots of nicer alternatives to Make, but for the purposes of this series, Makefiles have the advantages of being very explicit. You'll know exactly what's going on at each step and why.
+
+You'll want to have the following documents handy:
 
 * [User manual for the Nucleo F411RE board](http://www.st.com/st-web-ui/static/active/en/resource/technical/document/user_manual/DM00105823.pdf)
 * [Datasheet for the STM32F411 microcontroller itself](http://www.st.com/web/en/resource/technical/document/datasheet/DM00115249.pdf)
@@ -30,5 +34,3 @@ You'll want to have the following documents handy for the next part:
 The reference manual is going to be our main source of information. It gives in depth details of all the registers that are used to control the microcontroller.
 
 By the way, the OS we're going to be building is called Zeptos, from *zepto*, which is a prefix for the very, very small.
-
-In [Part 1: Setting Up the Toolchain](/zeptos/toolchain), we'll set up the GCC-based toolchain and create a minimal test firmware to flash the LED on the board.
