@@ -1511,18 +1511,18 @@ code,
 kbd,
 pre,
 samp {
-  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-family: "Ubuntu Mono", monospace;
 }
 code {
   padding: 2px 4px;
-  font-size: 90%;
+  font-size: 100%;
   color: #c7254e;
   background-color: #f9f2f4;
   border-radius: 4px;
 }
 kbd {
   padding: 2px 4px;
-  font-size: 90%;
+  font-size: 100%;
   color: #fff;
   background-color: #333;
   border-radius: 3px;
@@ -1540,7 +1540,7 @@ pre {
   display: block;
   padding: 9.5px;
   margin: 0 0 10px;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.42857143;
   color: #333;
   word-break: break-all;
