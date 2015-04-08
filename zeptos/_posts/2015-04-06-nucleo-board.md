@@ -19,4 +19,4 @@ Microcontrollers don't understand the ELF format, though; in fact, all the extra
 
 Our first objective is the get the on-board LED to flash. It's connected to a GPIO port, specifically port PA5. To make it flash, we need to toggle that I/O line high and low. As with all peripherals, this is accomplished by writing values to *registers*. These are not the registers that are internal to the CPU core; these are memory-mapped registers, which means we access them as though we were writing to memory locations.
 
-In [part 2](/zeptos/first-code), we'll look at the code that does that.
+In [part 2](../first-code), we'll look at the code that does that.
