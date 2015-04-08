@@ -21,12 +21,12 @@ This is a tiny test project that we'll use to get our toolchain working. The fir
 It starts with some `extern` declarations.
 
 ```c
-extern int __bss_start;
-extern int __bss_end;
-extern int __data_init_start;
-extern int __data_start;
-extern int __data_end;
-extern int __stack_end;
+extern uint32_t __bss_start;
+extern uint32_t __bss_end;
+extern uint32_t __data_init_start;
+extern uint32_t __data_start;
+extern uint32_t __data_end;
+extern uint32_t __stack_end;
 ```
 
 They're actually defined in the *linker script* we'll look at later, and they relate to the layout of our binary file.
@@ -44,12 +44,12 @@ Finally, we get to the first bit of real code.
 ```c
 static void __start(void) {
     // Zero out .bss section
-    for (int *ptr = &__bss_start; ptr < &__bss_end; ++ptr) {
+    for (uint32_t *ptr = &__bss_start; ptr < &__bss_end; ++ptr) {
         *ptr = 0;
     }
 
     // Initialize .data section
-    for (int *src = &__data_init_start, *dest = &__data_start; dest < &__data_end;) {
+    for (uint32_t *src = &__data_init_start, *dest = &__data_start; dest < &__data_end;) {
         *dest++ = *src++;
     }
 
