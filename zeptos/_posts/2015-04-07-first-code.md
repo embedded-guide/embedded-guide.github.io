@@ -6,12 +6,12 @@ Let's take a look at the source code. Clone the following Git repository:
 
 `git@github.com:embedded-guide/zeptos.git`
 
-and check out the tag `part1`:
+and check out the tag `part2`:
 
 ```sh
 git clone git@github.com:embedded-guide/zeptos.git
 cd zeptos
-git checkout part1
+git checkout part2
 ```
 
 This is a tiny test project that we'll use to get our toolchain working. The first file we'll look at is `src/start.c`.
@@ -62,7 +62,7 @@ It's just writing zeros and copying words from one location to another. Why? Rem
 This last definition is actually the table referred to above. The first entry is the top of the stack, and the second is the address of our `__start` function.
 
 ```c
-static void *__vectors[16] __attribute__((section(".vectors"), unused)) = {
+static void *__vectors[] __attribute__((section(".vectors"), unused)) = {
     &__stack_end,
     __start
 };
@@ -76,12 +76,12 @@ It starts by defining some pointers.
 
 ```c
 // Registers we'll be using in our minimal example
-static volatile uint32_t *RCC_AHB1ENR = (uint32_t *) 0x40023830;
-static volatile uint32_t *GPIOA_MODER = (uint32_t *) 0x40020000;
-static volatile uint32_t *GPIOA_ODR = (uint32_t *) 0x40020014;
+static volatile uint32_t * const RCC_AHB1ENR = (uint32_t *) 0x40023830;
+static volatile uint32_t * const GPIOA_MODER = (uint32_t *) 0x40020000;
+static volatile uint32_t * const GPIOA_ODR = (uint32_t *) 0x40020014;
 ```
 
-There are pointers to some of those memory-mapped registers. The names, which are defined in the MCU's reference manual, are very cryptic, but that's to keep them short. These are the ones we need to use to toggle a pin on a GPIO peripheral.
+There are pointers to some of those memory-mapped registers. The names, which are defined in the MCU's reference manual, are very cryptic, but that's to keep them short. These are the ones we need to use to toggle a pin on a GPIO peripheral. Note the position of the `const`: we're saying that the pointer itself is a constant, not that we're pointing to a constant. This tells the linker that the pointer can just be in flash, which saves some SRAM space.
 
 ```c
 void main(void) {
@@ -115,11 +115,17 @@ Now that the port is enabled and the pin is configured as an output, we can star
 
 ## link.ld
 
-If you haven't done embedded programming before, it's likely you've never encountered a linker script before. Usually they're hidden away and used automatically, but in a project like this, they give us the control we need to get the things we need in the right places in the firmware blob we upload.
+If you haven't done embedded programming before, it's likely you've never encountered a linker script before. Usually they're hidden away and used automatically, but in a project like this, they give us the control we need to get the things we need in the right places in the firmware blob we upload. To quote [the ld manual](https://sourceware.org/binutils/docs/ld/Scripts.html):
+
+> The main purpose of the linker script is to describe how the sections in the input files should be mapped into the output file, and to control the memory layout of the output file.
+ 
+They look intimidating at first, and they can get quite complex, but the one I've written here has been pared down to a more manageable size. It doesn't include, for example, sections used by C++.
 
 ```
 __stack_size = 1024;
 ```
+
+This is just a variable for our own use, so that if we change the size of the stack we want our OS to use, we don't have to go searching through the file for it.
 
 ```
 MEMORY {
@@ -128,21 +134,18 @@ MEMORY {
 }
 ```
 
-```
-SECTIONS {
-    .bss : {
-        __bss_start = .;
-        *(.bss .bss.*);
-        __bss_end = .;
-    } > sram
-```
+The `MEMORY` command defines output sections that correspond to the areas of memory that are present on the target device, and their properties. You should recognize the start (or *origin*) addresses from [Part 1](../nucleo-board). The lengths come from the memory sizes given in the datasheet. The attributes, `r`, `w` and `x`, mean readable, writeable and executable respectively. Both memory areas are readable, and code can be executed from either, but the flash memory is read-only. Flash memory can be written to, of course, because we're putting our own code in it, but because of the particular technology it uses, writing to it involves going through a process of reading a block, modifying the bytes that need to change, erasing the block, and then writing the new block. The programmer takes care of that when we upload our code, but it does mean that it can't be written to as a memory-mapped device. It can be read as one just fine, though.
 
 ```
+SECTIONS {
     .text : {
         KEEP(*(.vectors));
+        *(.text);
         *(.rodata .rodata.*);
-    } > flash
+    } >flash
 ```
+
+The `SECTIONS` command defines mappings from input sections (in the object files that GCC builds) to the output sections, and specifies which of the above regions the section goes in. This one generates an output `.text` section that contains: the `vectors` array we defined in `start.c`; all the actual ARM code; read-only data. Because this section comes first and is assigned to the `flash` region, it will come first in our firmware binary. That places the vector table at the beginning of flash, right where the MCU is expecting it.
 
 ```
     .data : {
@@ -150,13 +153,79 @@ SECTIONS {
         __data_start = .;
         *(.data .data.*);
         __data_end = .;
-    } > sram AT > flash
+    } >sram AT >flash
 ```
 
+This output section contains the initialized data. Because it's writeable, it needs to be loaded into flash and copied into SRAM at boot time. The `>sram` attribute causes the program to be linked as though the data was at an address in SRAM, while the `AT >flash` attribute specifies that it also needs to be included in the flash region at a different address. `LOADADDR(.data)` gives us the address in flash that this section will have, so we assign that to the symbol we use in our initialization code. Two more symbols, `__data_start` and `__data_end` point to the start and end SRAM addresses of where the data will be copied to.
+
 ```
-    .stack : {
+    .bss : {
+        __bss_start = .;
+        *(.bss .bss.*);
+        __bss_end = .;
+    } >sram
+```
+
+This one says that zero-initialized non-local variables live in SRAM. We also define symbols, `__bss_start` and `__bss_end` that mark the beginning and end of the BSS section. The BSS sections that GCC generates do not have a `LOAD` flag, so although space is reserved for these zero-initialized variables, all those zeros are not needlessly included in our firmware image.
+
+```
+    .stack (NOLOAD) : ALIGN(4) {
+        __stack_top = .;
         . += __stack_size;
         __stack_end = .;
-    } > sram
+    } >sram
 }
 ```
+
+There's no input section for our stack, so we have to explicitly specify that it shouldn't be included in the image (`NOLOAD`) and that it should be aligned on a word boundary.
+
+## Makefile
+
+Admittedly, Makefiles can get a little hairy, but at least for now we're going to stick it out, because they're very explicit about what's happening. Here are the highlights. One thing to be careful of: the indentations are tabs, not spaces. Make is peculiarly picky about that.
+
+```makefile
+SRC := $(shell find src -name *.c -print)
+```
+
+This populates the variable `SRC` with the names of all our C source files.
+
+```makefile
+CPU_FLAGS = -mcpu=cortex-m4 -mthumb
+
+CC_FLAGS = -std=gnu99 $(CPU_FLAGS) -Wall -ffreestanding -fno-common -fstack-usage
+LD_FLAGS = -nostdlib -Wl,-Map=$(TARGET).map -T link.ld
+```
+
+`-mcpu=cortex-m4` and `-mthumb` specify what kind instructions are generated by the compiler. Originally, all ARM instructions were 32 bits long. Thumb is a compact 16-bit instruction set. The Cortex-M4 supports Thumb-2, which extends Thumb with some additional 32-bit instructions.
+
+We tell the linker that we don't want to link with the standard library, that we want it to output a map file, and that we have our own linker script to use.
+
+```makefile
+all: $(TARGET).bin
+```
+
+The final target is a flat binary file that is our firmware image that we can upload to the MCU's flash memory.
+
+```makefile
+$(TARGET).elf: $(OBJ) link.ld
+    $(CC) $(LD_FLAGS) -o $@ $(OBJ)
+    $(SIZE) -Ax $@
+```
+
+When the ELF file is built, the `size` utility lists the sections with their sizes and addresses.
+
+```makefile
+$(TARGET).bin: $(TARGET).elf
+    $(OBJCOPY) -O binary $< $@
+```
+
+The binary file is created by copying the contents of each section of the ELF file that has the `LOAD` attribute, ordered by its address.
+
+```makefile
+.PHONY: flash
+flash: $(TARGET).bin
+    @if [ -z "$(MBED_PATH)" ]; then echo You must define MBED_PATH as the path to the root of the mbed mass storage; exit 1; fi
+    $(COPY) $< $(MBED_PATH)
+```
+
+In order to flash our image to the MCU, we need to know the path to the mbed mass stoage. It will be different on different host platforms, so rather than hardcode it in the Makefile, it's taken from the environment. This Makefile will abort if it's not set.
