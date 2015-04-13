@@ -21,9 +21,9 @@ The kind of OS we'll be developing is called an *exokernel*. It's similar to a m
 
 [Part 1](../nucleo-board) introduces the hardware I'll be using, which is an [ST Nucleo F411RE](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/LN1847/PF260320) development board (they're very cheap at $10, and they include an on-board USB programmer).
 
-[Part 2](../first-code) will go through the code required to get the on-board LED blinking.
+[Part 2](../toolchain) will get the GCC and Make toolchain working. Yes, I know there are lots of nicer alternatives to Make, but for the purposes of this series, Makefiles have the advantages of being very explicit. You'll know exactly what's going on at each step and why.
 
-[Part 3](../toolchain) will get the GCC and Make toolchain working. Yes, I know there are lots of nicer alternatives to Make, but for the purposes of this series, Makefiles have the advantages of being very explicit. You'll know exactly what's going on at each step and why.
+[Part 3](../first-code) will go through the code required to get the on-board LED blinking.
 
 You'll want to have the following documents handy:
 

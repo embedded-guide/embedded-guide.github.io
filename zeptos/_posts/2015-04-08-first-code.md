@@ -1,17 +1,17 @@
 ---
 layout: post
-title: "Part 2: A First Look at Code"
+title: "Part 3: A First Look at Code"
 ---
 Let's take a look at the source code. Clone the following Git repository:
 
 `git@github.com:embedded-guide/zeptos.git`
 
-and check out the tag `part2`:
+and check out the tag `part3`:
 
 ```sh
 git clone git@github.com:embedded-guide/zeptos.git
 cd zeptos
-git checkout part2
+git checkout part3
 ```
 
 This is a tiny test project that we'll use to get our toolchain working. The first file we'll look at is `src/start.c`.
