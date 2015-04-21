@@ -21,12 +21,12 @@ This is a tiny test project that we'll use to get our toolchain working. The fir
 It starts with some `extern` declarations.
 
 ```c
-extern uint32_t __bss_start;
-extern uint32_t __bss_end;
-extern uint32_t __data_init_start;
-extern uint32_t __data_start;
-extern uint32_t __data_end;
-extern uint32_t __stack_end;
+extern uint32_t _bss_start;
+extern uint32_t _bss_end;
+extern uint32_t _data_init_start;
+extern uint32_t _data_start;
+extern uint32_t _data_end;
+extern uint32_t _stack_top;
 ```
 
 They're actually defined in the *linker script* we'll look at later, and they relate to the layout of our binary file.
@@ -42,14 +42,14 @@ Because we're programming directly 'to the metal', there's no operating system h
 Finally, we get to the first bit of real code.
 
 ```c
-static void __start(void) {
+static void _start(void) {
     // Zero out .bss section
-    for (uint32_t *ptr = &__bss_start; ptr < &__bss_end; ++ptr) {
+    for (uint32_t *ptr = &_bss_start; ptr < &_bss_end; ++ptr) {
         *ptr = 0;
     }
 
     // Initialize .data section
-    for (uint32_t *src = &__data_init_start, *dest = &__data_start; dest < &__data_end;) {
+    for (uint32_t *src = &_data_init_start, *dest = &_data_start; dest < &_data_end;) {
         *dest++ = *src++;
     }
 
@@ -59,12 +59,12 @@ static void __start(void) {
 
 It's just writing zeros and copying words from one location to another. Why? Remember, the `.bss` section was implicit, so we need to do the work of filling it with zeros, so that any code that expects an uninitialized non-local variable to be zero will not be disappointed. Normally in a C program, this would be done by the C runtime code that is supplied by the compiler. But why is the `.data` section copied? When the linker links all our object files together, it does so as though all variables are in the memory space backed by SRAM. But the code we uploaded is in flash. This second loop simply copies the initial values from flash to their expected locations in SRAM. The call to `main` just jumps into the rest of our code, which is expected to never return.
 
-This last definition is actually the table referred to above. The first entry is the top of the stack, and the second is the address of our `__start` function.
+This last definition is actually the table referred to above. The first entry is the top of the stack, and the second is the address of our `_start` function.
 
 ```c
-static void *__vectors[] __attribute__((section(".vectors"), unused)) = {
-    &__stack_end,
-    __start
+static void *_vectors[] __attribute__((section("zeptos_vectors"), unused)) = {
+    &_stack_top,
+    _start
 };
 ```
 
@@ -122,7 +122,7 @@ If you haven't done embedded programming before, it's likely you've never encoun
 They look intimidating at first, and they can get quite complex, but the one I've written here has been pared down to a more manageable size. It doesn't include, for example, sections used by C++.
 
 ```
-__stack_size = 1024;
+_stack_size = 1024;
 ```
 
 This is just a variable for our own use, so that if we change the size of the stack we want our OS to use, we don't have to go searching through the file for it.
@@ -138,38 +138,45 @@ The `MEMORY` command defines output sections that correspond to the areas of mem
 
 ```
 SECTIONS {
-    .text : {
-        KEEP(*(.vectors));
-        *(.text);
-        *(.rodata .rodata.*);
-    } >flash
+    zeptos_vectors : {
+        KEEP(*(zeptos_vectors));
+    } > flash
 ```
 
-The `SECTIONS` command defines mappings from input sections (in the object files that GCC builds) to the output sections, and specifies which of the above regions the section goes in. This one generates an output `.text` section that contains: the `vectors` array we defined in `start.c`; all the actual ARM code; read-only data. Because this section comes first and is assigned to the `flash` region, it will come first in our firmware binary. That places the vector table at the beginning of flash, right where the MCU is expecting it.
+The `SECTIONS` command defines mappings from input sections (in the object files that GCC builds) to the output sections, and specifies which of the above regions the section goes in. This one creates an output section called `zeptos_vectors` containing the contents of the input section of the same name. The contents is the `_vectors` array we defined earlier and marked with the `section("zeptos_vectors")` attribute. Because it's the first section in the linker script to be assigned to the `flash` region, it will appear first in the firmware binary we write to flash memory, which is exactly where the processor is expecting it to be. (And it's the only thing that needs to be in a specific location.)
+
+```
+    .text : {
+        *(.text .text.*);
+        *(.rodata .rodata.*);
+    } > flash
+```
+
+This next one generates an output `.text` section that contains all the actual ARM code and read-only data.
 
 ```
     .data : {
-        __data_init_start = LOADADDR(.data);
-        __data_start = .;
+        _data_init_start = LOADADDR(.data);
+        _data_start = .;
         *(.data .data.*);
-        __data_end = .;
+        _data_end = .;
     } >sram AT >flash
 ```
 
-This output section contains the initialized data. Because it's writeable, it needs to be loaded into flash and copied into SRAM at boot time. The `>sram` attribute causes the program to be linked as though the data was at an address in SRAM, while the `AT >flash` attribute specifies that it also needs to be included in the flash region at a different address. `LOADADDR(.data)` gives us the address in flash that this section will have, so we assign that to the symbol we use in our initialization code. Two more symbols, `__data_start` and `__data_end` point to the start and end SRAM addresses of where the data will be copied to.
+This output section contains the initialized data. Because it's writeable, it needs to be loaded into flash and copied into SRAM at boot time. The `>sram` attribute causes the program to be linked as though the data was at an address in SRAM, while the `AT >flash` attribute specifies that it also needs to be included in the flash region at a different address. `LOADADDR(.data)` gives us the address in flash that this section will have, so we assign that to the symbol we use in our initialization code. Two more symbols, `_data_start` and `_data_end` point to the start and end SRAM addresses of where the data will be copied to.
 
 ```
     .bss : {
-        __bss_start = .;
+        _bss_start = .;
         *(.bss .bss.*);
-        __bss_end = .;
-    } >sram
+        _bss_end = .;
+    } > sram
 ```
 
-This one says that zero-initialized non-local variables live in SRAM. We also define symbols, `__bss_start` and `__bss_end` that mark the beginning and end of the BSS section. The BSS sections that GCC generates do not have a `LOAD` flag, so although space is reserved for these zero-initialized variables, all those zeros are not needlessly included in our firmware image.
+This one says that zero-initialized non-local variables live in SRAM. We also define symbols, `_bss_start` and `_bss_end` that mark the beginning and end of the BSS section. The BSS sections that GCC generates do not have a `LOAD` flag, so although space is reserved for these zero-initialized variables, all those zeros are not needlessly included in our firmware image.
 
 ```
-    .stack (NOLOAD) : ALIGN(4) {
+    zeptos_stack (NOLOAD) : ALIGN(4) {
         __stack_top = .;
         . += __stack_size;
         __stack_end = .;
@@ -177,7 +184,7 @@ This one says that zero-initialized non-local variables live in SRAM. We also de
 }
 ```
 
-There's no input section for our stack, so we have to explicitly specify that it shouldn't be included in the image (`NOLOAD`) and that it should be aligned on a word boundary.
+Finally, we have a section for the operating system's stack. There's no input section for this, so we have to explicitly specify that it shouldn't be included in the image (`NOLOAD`) and that it should be aligned on a word boundary.
 
 ## Makefile
 
