@@ -17,4 +17,4 @@ Our first objective is the get the on-board LED to flash. It's connected to GPIO
 
 You can see the flash memory starts at 0x08000000, the SRAM starts at 0x20000000 and peripheral registers are mapped into memory space starting at 0x40000000. APB1, APB2, AHB1 and AHB2 are the different peripheral buses.
 
-In [part 2](../tookchain), we'll look at the tools we need to build our code.
+In [part 2](part2-toolchain.html), we'll look at the tools we need to build our code.

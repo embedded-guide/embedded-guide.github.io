@@ -19,11 +19,11 @@ If you're already at all familiar with what an operating system does, you'll kno
 
 The kind of OS we'll be developing is called an *exokernel*. It's similar to a microkernel in that it contains only core functionality, not device drivers. Where it differs, though, is that instead of drivers being implemented as services, they are libraries linked to the running application. This approach works well here, because a microcontroller is usually dedicated to only one application, and the less featured memory controller means we'll only be using minimal memory protection, so libraries linked to tasks will be able to directly access hardware.
 
-[Part 1](../nucleo-board) introduces the hardware I'll be using, which is an [ST Nucleo F411RE](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/LN1847/PF260320) development board (they're very cheap at $10, and they include an on-board USB programmer).
+[Part 1](part1-nucleo-board.html) introduces the hardware I'll be using, which is an [ST Nucleo F411RE](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/LN1847/PF260320) development board (they're very cheap at $10, and they include an on-board USB programmer).
 
-[Part 2](../toolchain) will get the GCC and Make toolchain working. Yes, I know there are lots of nicer alternatives to Make, but for the purposes of this series, Makefiles have the advantages of being very explicit. You'll know exactly what's going on at each step and why.
+[Part 2](part2-toolchain.html) will get the GCC and Make toolchain working. Yes, I know there are lots of nicer alternatives to Make, but for the purposes of this series, Makefiles have the advantages of being very explicit. You'll know exactly what's going on at each step and why.
 
-[Part 3](../first-code) will go through the code required to get the on-board LED blinking.
+[Part 3](part3-first-code.html) will go through the code required to get the on-board LED blinking.
 
 You'll want to have the following documents handy:
 
