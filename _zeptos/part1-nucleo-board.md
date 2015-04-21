@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: article
 title: "Part 1: The ST Micro Nucleo STM32F411 Board"
 ---
 <img style="float: right" src="/images/nucleo411.jpg" alt="Nucleo STM32F411">

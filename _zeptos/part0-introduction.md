@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: article
 title: "Part 0: Introduction"
 ---
 Last year, I found myself with a good excuse to dive into writing some embedded software. Like many people, I'd started out with an [Arduino](http://www.arduino.cc/), using their Wiring programming environment. After some long evenings cozying up to Atmel datasheets, I felt comfortable abandoning the Arduino IDE and writing everything from the ground up as a learning exercise. When I felt confident enough with that, I moved on to ARM microcontrollers. They're a little more difficult to initialize, but I have a nostalgic fondness for them having learned ARM programming on an ARM 2 computer ([Acorn A3000](http://en.wikipedia.org/wiki/Acorn_Archimedes#A3000_and_A5000)) in my early teens.

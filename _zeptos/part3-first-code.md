@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: article
 title: "Part 3: A First Look at Code"
 ---
 Let's take a look at the source code. Clone the following Git repository:

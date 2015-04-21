@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: article
 title: "Part 2: The Toolchain"
 ---
 The process of building firmware isn't too different to building a native executable. We'll use `gcc` and `ld` to compile and link C sources, but it will be a *cross-compiler* that outputs ARM code instead of code for our host platform (usually x86 or x86-64). We'll also use GCC's assembler to assemble the few bits of code we'll need to write in ARM code. (Don't worry, there isn't much ARM code involved, and it's much nicer than x86 assembly anyway.)
