@@ -25,11 +25,17 @@ The kind of OS we'll be developing is called an *exokernel*. It's similar to a m
 
 [Part 3](part3-first-code.html) will go through the code required to get the on-board LED blinking.
 
-You'll want to have the following documents handy:
+You'll want to have the following documents handy, from ST:
 
 * [User manual for the Nucleo F411RE board](http://www.st.com/st-web-ui/static/active/en/resource/technical/document/user_manual/DM00105823.pdf)
 * [Datasheet for the STM32F411 microcontroller itself](http://www.st.com/web/en/resource/technical/document/datasheet/DM00115249.pdf)
-* [Reference manual for the microcontroller](http://www.st.com/web/en/resource/technical/document/reference_manual/DM00119316.pdf)
+* [Reference manual for the STM32F411 microcontroller](http://www.st.com/web/en/resource/technical/document/reference_manual/DM00119316.pdf)
+
+And from ARM:
+
+* [Cortex-M4 Devices Generic User Guide](http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/DUI0553A_cortex_m4_dgug.pdf)
+* [ARM Cortex-M4 Technical Reference Manual](http://infocenter.arm.com/help/topic/com.arm.doc.ddi0439b/DDI0439B_cortex_m4_r0p0_trm.pdf)
+* [ARM v7-M Architecture Reference Manual](https://silver.arm.com/download/ARM_and_AMBA_Architecture/AR580-DA-70000-r0p0-05rel0/DDI0403E_B_armv7m_arm.pdf)
 
 The reference manual is going to be our main source of information. It gives in depth details of all the registers that are used to control the microcontroller.
 
