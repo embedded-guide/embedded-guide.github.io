@@ -25,6 +25,20 @@ The kind of OS we'll be developing is called an *exokernel*. It's similar to a m
 
 [Part 3](part3-first-code.html) will go through the code required to get the on-board LED blinking.
 
+[Part 4](clocks.html) describes the all-important clock tree
+
+# Parts still to come
+
+These upcoming parts are planned or in progress.
+
+* Part 5: The GPIO Driver
+* Part 6: The UART Driver
+* Part 7: Task Switching
+* Part 8: Blocking Tasks
+* Part 9: Message Passing
+
+# Documentation
+
 You'll want to have the following documents handy, from ST:
 
 * [User manual for the Nucleo F411RE board](http://www.st.com/st-web-ui/static/active/en/resource/technical/document/user_manual/DM00105823.pdf)

@@ -3,14 +3,13 @@ Started:
 1 - The Nucleo Board
 2 - Toolchain
 3 - A First Look at Code
+4 - Clock tree
 
 To-do:
-4 - Clock tree
 5 - GPIO driver
 6 - UART driver
 7 - Task switching
-
+8 - Blocking
+9 - Message passing
 
 Other topics:
-Blocking
-Message passing
